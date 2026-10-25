@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16233b">
+<title>Мой график смен</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#182238;background:#f2f5fa;--line:#dce3ed;--ink:#182238;--muted:#657087}
+*{box-sizing:border-box}body{margin:0;padding:12px}button,input{font:inherit}button{cursor:pointer;min-height:44px;border:1px solid #cbd5e1;border-radius:12px;padding:9px 12px;background:#fff;color:var(--ink)}button:focus-visible,input:focus-visible{outline:3px solid #6078d8;outline-offset:2px}
+.app{max-width:760px;margin:auto}.header{background:#16233b;color:#fff;border-radius:18px;padding:17px;margin-bottom:12px}.headrow{display:flex;justify-content:space-between;align-items:center;gap:8px}.header h1{font-size:1.35rem;margin:0}.header p{margin:5px 0 0;color:#d3dced;font-size:.9rem}.todaybox{margin-top:14px;border-radius:13px;background:#243652;padding:12px}.todaybox .label{font-size:.78rem;color:#d3dced}.todaybox strong{display:block;font-size:1.25rem;margin-top:3px}.todaybox .date{font-size:.88rem;color:#d3dced;margin-top:2px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:12px}.monthbar{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:7px;margin-bottom:10px}.monthbar h2{font-size:1.08rem;margin:0;text-align:center}.monthbar button{padding:4px;font-size:1.25rem}.week,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.week div{text-align:center;font-size:.73rem;color:var(--muted);padding:4px 0}.day{min-width:0;min-height:66px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;border-radius:10px;position:relative}.day .num{font-weight:750;font-size:.9rem}.day .tag{font-size:.61rem;line-height:1.2;padding:3px 2px;border-radius:5px;width:100%;overflow-wrap:anywhere;text-align:center}.day.empty{visibility:hidden;pointer-events:none}.is-day{background:#e3f6e9;border-color:#b8e3c6}.is-night{background:#e4edff;border-color:#bfd1fa}.is-off{background:#fff1dc;border-color:#f2d7a8}.is-day .tag{background:#bfe8cb}.is-night .tag{background:#c7d9ff}.is-off .tag{background:#ffe0ac}.day.selected{outline:3px solid #455fc3;outline-offset:1px}.day.today .num:after{content:' •';color:#324fbd}.day.checked .tag:after{content:' ✓';font-weight:800}.legend{display:flex;gap:12px;flex-wrap:wrap;margin:12px 2px 0}.legend span{font-size:.8rem;display:flex;align-items:center;gap:5px}.dot{height:11px;width:11px;border-radius:3px;display:inline-block}
+.detailtop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.detailtop h3{margin:0;font-size:1rem}.dateinfo{color:var(--muted);font-size:.86rem;margin:4px 0 10px}.badge{padding:6px 9px;border-radius:9px;font-size:.8rem;font-weight:700;white-space:nowrap}.badge.day{background:#d9f2e1}.badge.night{background:#dce8ff}.badge.off{background:#ffebc9}.checkrow{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:11px;min-height:48px}.checkrow input{width:21px;height:21px;accent-color:#344fb0}.checkrow span{font-size:.92rem}.hint{font-size:.77rem;color:var(--muted);line-height:1.4;margin:8px 0 0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.primary{background:#243d8f;color:#fff;border-color:#243d8f}.danger{color:#8b2635}.settings h3{font-size:1rem;margin:0 0 6px}.settings p{font-size:.82rem;line-height:1.45;color:var(--muted);margin:0 0 10px}.settings label{font-size:.86rem;display:flex;flex-direction:column;gap:6px;flex:1;min-width:170px}.settings input{width:100%;min-height:44px;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;background:white;color:var(--ink)}.settingsrow{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.footer{text-align:center;font-size:.75rem;color:var(--muted);padding:0 8px 10px}
+@media(max-width:390px){body{padding:8px}.panel{padding:10px}.day{min-height:59px;gap:4px}.day .num{font-size:.82rem}.day .tag{font-size:.56rem}.week div{font-size:.68rem}.header{padding:14px}.header h1{font-size:1.2rem}}
+</style>
+</head>
+<body>
+<main class="app" id="shiftApp">
+ <header class="header">
+  <div class="headrow"><div><h1>Мой график смен</h1><p>День → ночь → 2 выходных</p></div><button id="todayBtn" type="button">Сегодня</button></div>
+  <div class="todaybox"><div class="label">СЕГОДНЯ ПО ГРАФИКУ</div><strong id="todayShift">—</strong><div class="date" id="todayDate"></div></div>
+ </header>
+ <section class="panel">
+  <div class="monthbar"><button id="prevBtn" type="button" aria-label="Предыдущий месяц">‹</button><h2 id="monthTitle">Октябрь 2026</h2><button id="nextBtn" type="button" aria-label="Следующий месяц">›</button></div>
+  <div class="week" id="weekdays"></div><div class="calendar" id="calendar"></div>
+  <div class="legend"><span><i class="dot" style="background:#bfe8cb"></i>День</span><span><i class="dot" style="background:#c7d9ff"></i>Ночь</span><span><i class="dot" style="background:#ffe0ac"></i>Выходной</span></div>
+ </section>
+ <section class="panel" id="detailPanel">
+  <div class="detailtop"><div><h3>Выбранная дата</h3><div class="dateinfo" id="selectedDate"></div></div><span class="badge" id="shiftBadge">—</span></div>
+  <label class="checkrow"><input id="doneCheck" type="checkbox"><span id="checkText">Отметить день</span></label>
+  <p class="hint" id="saveStatus" aria-live="polite">Отметки автоматически сохраняются на этом устройстве.</p>
+  <div class="actions"><button id="clearCheck" type="button">Снять отметку</button><button id="exportBtn" type="button">Экспорт отметок</button></div>
+ </section>
+ <section class="panel settings">
+  <h3>Настройка цикла</h3><p>Укажи дату, когда у тебя дневная смена. По ней календарь пересчитает все дни: день, ночь, выходной, выходной.</p>
+  <div class="settingsrow"><label>Дата дневной смены<input id="anchorDate" type="date" value="2026-10-26"></label><button class="primary" id="applyAnchor" type="button">Пересчитать</button></div>
+  <div class="actions"><button class="danger" id="resetBtn" type="button">Сбросить отметки</button></div>
+  <p class="hint">Важно: календарь сохраняет отметки и дату начала цикла в памяти браузера на этом устройстве. При очистке данных браузера они могут удалиться.</p>
+ </section>
+ <div class="footer">Работает без интернета после сохранения файла на устройстве.</div>
+</main>
+<script>
+(function(){
+ const root=document.getElementById('shiftApp'); if(root.dataset.ready)return;root.dataset.ready='1';
+ const $=id=>document.getElementById(id);
+ const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+ const days=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+ const STORE='myShiftCalendar.v2';
+ let state={anchor:'2026-10-26',checked:{},selected:'2026-10-26'};
+ try{const saved=JSON.parse(localStorage.getItem(STORE)||'null');if(saved&&typeof saved==='object'){if(/^\d{4}-\d{2}-\d{2}$/.test(saved.anchor||''))state.anchor=saved.anchor;if(saved.checked&&typeof saved.checked==='object')state.checked=saved.checked;if(/^\d{4}-\d{2}-\d{2}$/.test(saved.selected||''))state.selected=saved.selected}}catch(e){}
+ let view=new Date(2026,9,1);
+ function persist(){try{localStorage.setItem(STORE,JSON.stringify(state));$('saveStatus').textContent='Сохранено на этом устройстве.'}catch(e){$('saveStatus').textContent='Браузер не разрешил постоянное сохранение. Можно экспортировать отметки.'}}
+ function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+ function key(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0')}
+ function fmt(s){return parse(s).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+ function shift(s){const delta=Math.round((parse(s)-parse(state.anchor))/86400000),p=((delta%4)+4)%4;return p===0?'День':p===1?'Ночь':'Выходной'}
+ function shiftClass(s){return s==='День'?'is-day':s==='Ночь'?'is-night':'is-off'}
+ function badgeClass(s){return s==='День'?'day':s==='Ночь'?'night':'off'}
+ function render(){
+  $('monthTitle').textContent=months[view.getMonth()]+' '+view.getFullYear();
+  $('weekdays').innerHTML='';days.forEach(t=>{const e=document.createElement('div');e.textContent=t;$('weekdays').appendChild(e)});
+  const cal=$('calendar');cal.innerHTML='';const first=new Date(view.getFullYear(),view.getMonth(),1),offset=(first.getDay()+6)%7;
+  for(let i=0;i<offset;i++){const e=document.createElement('div');e.className='day empty';cal.appendChild(e)}
+  const count=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+  const now=new Date(),today=key(now.getFullYear(),now.getMonth(),now.getDate());
+  for(let n=1;n<=count;n++){
+   const s=key(view.getFullYear(),view.getMonth(),n),sh=shift(s),b=document.createElement('button');b.type='button';
+   b.className='day '+shiftClass(sh)+(s===state.selected?' selected':'')+(s===today?' today':'')+(state.checked[s]?' checked':'');
+   b.setAttribute('aria-label',fmt(s)+', '+sh+(state.checked[s]?', отмечено':''));
+   const num=document.createElement('span');num.className='num';num.textContent=n;
+   const tag=document.createElement('span');tag.className='tag';tag.textContent=sh==='День'?'День':sh==='Ночь'?'Ночь':'Отдых';
+   b.append(num,tag);b.addEventListener('click',()=>{state.selected=s;persist();render()});cal.appendChild(b);
+  }
+  const ts=shift(today);$('todayShift').textContent=ts;$('todayDate').textContent=parse(today).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+  $('selectedDate').textContent=fmt(state.selected);const ss=shift(state.selected);
+  $('shiftBadge').textContent=ss;$('shiftBadge').className='badge '+badgeClass(ss);
+  $('doneCheck').checked=!!state.checked[state.selected];$('checkText').textContent=ss==='Выходной'?'Отметить выходной как отмеченный':'Отметить смену как выполненную';
+  $('anchorDate').value=state.anchor;
+ }
+ $('prevBtn').addEventListener('click',()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()});
+ $('nextBtn').addEventListener('click',()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()});
+ $('todayBtn').addEventListener('click',()=>{const n=new Date();state.selected=key(n.getFullYear(),n.getMonth(),n.getDate());view=new Date(n.getFullYear(),n.getMonth(),1);persist();render()});
+ $('doneCheck').addEventListener('change',e=>{if(e.target.checked)state.checked[state.selected]=true;else delete state.checked[state.selected];persist();render()});
+ $('clearCheck').addEventListener('click',()=>{delete state.checked[state.selected];persist();render()});
+ $('applyAnchor').addEventListener('click',()=>{const v=$('anchorDate').value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert('Выбери корректную дату.');return}state.anchor=v;persist();render()});
+ $('resetBtn').addEventListener('click',()=>{if(confirm('Удалить все отметки? Дата начала цикла останется прежней.')){state.checked={};persist();render()}});
+ $('exportBtn').addEventListener('click',()=>{const payload={anchor:state.anchor,checked:state.checked,exportedAt:new Date().toISOString()};if(window.AndroidBridge){AndroidBridge.shareText("otmetki-grafika-smen.json",JSON.stringify(payload,null,2));return}const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='otmetki-grafika-smen.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+ render();
+})();
+</script>
+</body>
+</html>
