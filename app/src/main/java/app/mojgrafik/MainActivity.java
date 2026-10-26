@@ -3,7 +3,9 @@ package app.mojgrafik;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -17,6 +19,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
+        }
         web = new WebView(this);
         setContentView(web);
         WebSettings s = web.getSettings();
@@ -53,6 +58,20 @@ public class MainActivity extends Activity {
                 i.putExtra(Intent.EXTRA_SUBJECT, name);
                 i.putExtra(Intent.EXTRA_TEXT, text);
                 startActivity(Intent.createChooser(i, "Экспорт отметок"));
+            });
+        }
+
+        @JavascriptInterface
+        public void setAlarms(String json, int snooze) {
+            Alarms.save(getApplicationContext(), json, snooze);
+        }
+
+        @JavascriptInterface
+        public void openBattery() {
+            runOnUiThread(() -> {
+                try {
+                    startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+                } catch (Exception e) { }
             });
         }
     }
